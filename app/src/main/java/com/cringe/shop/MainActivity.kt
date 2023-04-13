@@ -4,6 +4,7 @@ import android.graphics.Paint.Align
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,19 +20,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cringe.shop.database.ShoppingItem
 import com.cringe.shop.ui.theme.ShopTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val viewModel by viewModels<ShoppingViewModel>()
+            val shoppingItems by viewModel.shoppingItems.collectAsState(initial = listOf())
             ShopTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreen()
+                    MainScreen(shoppingItems = shoppingItems, onAddItemClick = {shoppingItem ->  viewModel.addShoppingItem(shoppingItem)})
                 }
             }
         }
@@ -39,19 +43,23 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(){
+fun MainScreen(shoppingItems: List<ShoppingItem>,onAddItemClick: (ShoppingItem) -> Unit){
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Shopping List")})
         },
         content = {
-            Input()
+            Column {
+                Input(onAddItemClick)
+                ShoppingList(shoppingItems)
+            }
+
         }
     )
 }
 
 @Composable
-fun Input(){
+fun Input(onAddItemClick: (ShoppingItem) -> Unit){
     var itemName by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf(0) }
     Column(
@@ -72,21 +80,18 @@ fun Input(){
             )
         )
         
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = { onAddItemClick(ShoppingItem(itemName,amount))}) {
             Text(text = "Add product")
         }
-
-        ShoppingList()
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ShoppingList(){
-    val tempList = listOf("egg","chicken","butter","egg","chicken","butter","egg","chicken","butter","egg","chicken","butter","egg","chicken","butter")
+fun ShoppingList(shoppingItems: List<ShoppingItem>){
     LazyColumn{
         items(
-            items = tempList
+            items = shoppingItems
         ){
             Card(
                 modifier = Modifier
@@ -96,7 +101,7 @@ fun ShoppingList(){
                 elevation = 3.dp
             ) {
                 Text(
-                    text = it,
+                    text = it.name,
                     modifier = Modifier.padding(12.dp),
                     textAlign = TextAlign.Center,
                 )
@@ -110,6 +115,6 @@ fun ShoppingList(){
 @Composable
 fun DefaultPreview() {
     ShopTheme {
-        MainScreen()
+        MainScreen(listOf(),{})
     }
 }
