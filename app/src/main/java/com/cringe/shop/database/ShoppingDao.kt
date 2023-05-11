@@ -15,4 +15,7 @@ interface ShoppingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertItems(vararg shoppingItem: ShoppingItem)
 
+    @Query("SELECT * FROM shoppingitem WHERE id=:id")
+    fun getItem(id:Int): ShoppingItem
+
 }

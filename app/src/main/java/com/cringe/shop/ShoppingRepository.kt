@@ -14,4 +14,8 @@ class ShoppingRepository(private val database: AppDatabase) {
     }
 
     val shoppingItems: Flow<List<ShoppingItem>> = database.shoppingDao().getAllItems()
+
+    suspend fun getItemFromId(id: Int): ShoppingItem{
+        return database.shoppingDao().getItem(id)
+    }
 }
