@@ -25,7 +25,7 @@ fun NavHost(
         composable(route = "item/{itemId}"){backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")
             itemId?.let {
-                ItemScreen(itemId = itemId, shoppingViewModel = shoppingViewModel)
+                ItemScreen(itemId = itemId, shoppingViewModel = shoppingViewModel, navController = navHostController)
             }
 
         }
